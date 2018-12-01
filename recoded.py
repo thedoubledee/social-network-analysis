@@ -270,7 +270,9 @@ class SentimentAnalysis:
         wc = WordCloud(background_color="white",relative_scaling=0.5).generate_from_frequencies(hash)
         plt.imshow(wc,interpolation='bilinear')
         plt.axis('off')
+        plt.title('Frequent hashtags from Tweets fetched.',color='black')
         plt.show()
+
 
 
 if __name__== "__main__":
