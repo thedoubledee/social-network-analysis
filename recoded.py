@@ -5,6 +5,8 @@ import datetime
 import emoji
 import numpy as np
 from collections import Counter
+from PIL import Image
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 
 
 class SentimentAnalysis:
@@ -173,6 +175,7 @@ class SentimentAnalysis:
         self.plotPieChart(positive, wpositive, spositive, negative, wnegative, snegative, neutral, searchTerm, n)
         self.barGraphM(self.dates)
         self.barGraphD(self.day)
+        self.cloud(self.hash_count)
 
     def cleanTweet(self, tweet):
         # Remove Links, Special Characters etc from tweet
@@ -261,6 +264,12 @@ class SentimentAnalysis:
         plt.xlabel('Time')
         plt.title('Tweets range day wise')
  
+        plt.show()
+
+    def cloud(self,hash):
+        wc = WordCloud(background_color="white",relative_scaling=0.5).generate_from_frequencies(hash)
+        plt.imshow(wc,interpolation='bilinear')
+        plt.axis('off')
         plt.show()
 
 
