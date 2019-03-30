@@ -1,7 +1,6 @@
 import tweepy,csv,re,datetime,emoji
 from textblob import TextBlob
 from collections import Counter
-
 def DownloadData(searchitem,searchTerm,NoOfTerms,ui):
 #--Authenticate ,download , filter,analyse tweet data --#    
     # authenticating
@@ -113,7 +112,6 @@ def DownloadData(searchitem,searchTerm,NoOfTerms,ui):
     ui.progress.setValue(80)
     output="Analyzing " + str(n) + " Tweets on " + searchTerm
     output+="\nGeneral Report: "
-    
     if (polarity == 0):
         output+="Neutral"
     elif (polarity > 0 and polarity <= 0.3):
