@@ -2,7 +2,7 @@ import tweepy,csv,re,datetime,emoji
 from textblob import TextBlob
 from collections import Counter
 
-def DownloadData():
+def DownloadData(searchitem,searchTerm,NoOfTerms,ui):
 #--Authenticate ,download , filter,analyse tweet data --#    
     # authenticating
     consumerKey = '0q6yabp5VLtyKVpN39kLS86Lz'
@@ -16,21 +16,19 @@ def DownloadData():
     except: 
         print("Error: Authentication Failed")
     # input for term to be searched and how many tweets to search
-    searchitem= input("Please select the type of search:\n1.Keyword/Tag\n2.Tweeted to a person\n3.Tweets from a person.\nEnter:")
-    searchTerm = input("Enter Keyword/Tag to search about: ")
-    NoOfTerms = int(input("Enter how many tweets to search: "))
-        
-    if(searchitem == '1'):
+    ui.progress.setValue(30)
+    if(searchitem == 1):
         tweets = tweepy.Cursor(api.search, searchTerm + " -filter:retweets", lang="en", tweet_mode="extended").items(NoOfTerms)
-    elif(searchitem == '2'):
+    elif(searchitem == 2):
         tweets = tweepy.Cursor(api.search, "To:" + searchTerm + " -filter:retweets", lang="en", tweet_mode="extended").items(NoOfTerms)
-    elif(searchitem == '3'):
+    elif(searchitem == 3):
         tweets = tweepy.Cursor(api.search, "From:" + searchTerm + " -filter:retweets", lang="en", tweet_mode="extended").items(NoOfTerms)
     
     # Open/create a file to append data to
     csvFile = open('result' + str(datetime.datetime.now().strftime("%Y%m%d%H%M")) + '.csv', 'a', newline='', encoding="utf-8")
     # Use csv writer
     csvWriter = csv.writer(csvFile)
+    ui.progress.setValue(40)
     tweetText = []
     dates = []
     likes = []
@@ -68,10 +66,11 @@ def DownloadData():
         # temp = [key,value]
         # top_hash.append(temp)
     csvWriter.writerow(['tweet', 'username', 'location', 'hash-tags', 'Date', 'Day', 'tweet_id', 'likes', 'retweets', 'polarity'])
+    ui.progress.setValue(50)
     for i in range(len(tweetText)):
         csvWriter.writerow([tweetText[i], username[i], locations[i], hash_tags[i], dates[i], day[i], tweetid[i], likes[i], retweet[i], polarityl[i]])
     csvFile.close()
-    
+    ui.progress.setValue(60)
     polarity = 0
     positive = 0
     wpositive = 0
@@ -101,7 +100,7 @@ def DownloadData():
             negative += 1
         elif (analysis.sentiment.polarity > -1 and analysis.sentiment.polarity <= -0.6):
             snegative += 1
-    
+    ui.progress.setValue(70)
     # finding average of how people are reacting
     positive = percentage(positive, n)
     wpositive = percentage(wpositive, n)
@@ -111,34 +110,34 @@ def DownloadData():
     snegative = percentage(snegative, n)
     neutral = percentage(neutral, n)
     polarity = polarity / len(tweetText)
-
-    print("\nAnalyzing " + str(n) + " tweets on " + searchTerm)
-    print("General Report: ")
-
+    ui.progress.setValue(80)
+    output="Analyzing " + str(n) + " Tweets on " + searchTerm
+    output+="\nGeneral Report: "
+    
     if (polarity == 0):
-        print("Neutral")
+        output+="Neutral"
     elif (polarity > 0 and polarity <= 0.3):
-        print("Weakly Positive")
+        output+="Weakly Positive"
     elif (polarity > 0.3 and polarity <= 0.6):
-        print("Positive")
+        output+="Positive"
     elif (polarity > 0.6 and polarity <= 1):
-        print("Strongly Positive")
+        output+="Strongly Positive"
     elif (polarity > -0.3 and polarity <= 0):
-        print("Weakly Negative")
+        output+="Weakly Negative"
     elif (polarity > -0.6 and polarity <= -0.3):
-        print("Negative")
+        output+="Negative"
     elif (polarity > -1 and polarity <= -0.6):
-        print("Strongly Negative")
-
-    print()
-    print("Detailed Report: ")
-    print(str(positive) + "% people thought it was positive")
-    print(str(wpositive) + "% people thought it was weakly positive")
-    print(str(spositive) + "% people thought it was strongly positive")
-    print(str(negative) + "% people thought it was negative")
-    print(str(wnegative) + "% people thought it was weakly negative")
-    print(str(snegative) + "% people thought it was strongly negative")
-    print(str(neutral) + "% people thought it was neutral")
+        output+="Strongly Negative"
+    ui.progress.setValue(100)
+    output+="\nDetailed Report: \n"
+    output+=str(positive) + "% people thought it was positive\n"
+    output+=str(wpositive) + "% people thought it was weakly positive\n"
+    output+=str(spositive) + "% people thought it was strongly positive\n"
+    output+=str(negative) + "% people thought it was negative\n"
+    output+=str(wnegative) + "% people thought it was weakly negative\n"
+    output+=str(snegative) + "% people thought it was strongly negative\n"
+    output+=str(neutral) + "% people thought it was neutral"
+    ui.display_label.setText(output)
     temp=[positive, wpositive, spositive, negative, wnegative, snegative, neutral, searchTerm, n,dates,day,hash_count,hash_tags,temp1]
     return temp
 
