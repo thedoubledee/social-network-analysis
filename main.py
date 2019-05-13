@@ -1,59 +1,79 @@
 import tweet_extract as te
 import graph_plot as gp
-import requests
 from PyQt5 import QtWidgets
-from ui import Ui_MainWindow #this is your generated .py file 
+from slider import Ui_MainWindow #this is your generated .py file 
 import sys
-from PyQt5.QtWidgets import QMessageBox
-from PyQt5.Qt import QPixmap
+import networkx as nx
+import matplotlib.pyplot as plt
+# #-------------BEGIN INVOKING MODULES------------##
+
 class MainWindow(QtWidgets.QMainWindow):
+    H = nx.Graph()
+    npostweets = []
+    ntotaltweets = []
+    nodelist=[]
+    files = ['Congress','BJP' ,'TMC', 'CPIM','AAP','RJD','BSP','Samajwadi']
+    
     def __init__(self):
+            
+        print("\nDownloading Data")
+        for names in MainWindow.files:
+            try:
+                te.downloadcsv(names)
+            except:
+                pass
+        print("\nData Downloaded\nAnalyzing Data and Plotting Graphs")
+        for names in MainWindow.files:
+            temp = te.readfromcsv(names)
+            gp.plotPieChart(temp[0], temp[1], temp[2], temp[3], temp[4], temp[5], temp[6], names, temp[7])
+            gp.cloud(temp[8])
+            MainWindow.ntotaltweets.append(temp[7])
+            MainWindow.npostweets.append(len(temp[9]))
+            MainWindow.H = gp.plottest(MainWindow.H, temp[9], names)
+        
+        for i in range(len(MainWindow.npostweets)):
+            MainWindow.npostweets[i]=te.percentage(MainWindow.npostweets[i],MainWindow.ntotaltweets[i])
+ 
+        gp.barGraphP(MainWindow.npostweets,MainWindow.files)
+        
         super(MainWindow,self).__init__() #This is the parent window object
         self.ui=Ui_MainWindow()
         self.ui.setupUi(self)
-        self.checknet()
-        self.ui.search_button.clicked.connect(self.search)
+        self.ui.pushButton.clicked.connect(self.kcore)
+        def get_key(val):
+            for key, value in res.items():
+                if val == value :
+                    return key
+        res = nx.degree_centrality(MainWindow.H)
+        temp = []
+        for names in MainWindow.files:
+            temp.append(res[names])
+
+        print("From calculating the degrees of centrality for the corresponding parties, we find that with ", round(float(max(temp)),3))
+        print(" degree of centrality, "+get_key(max(temp))+" has a probable chance of winning.")
         
-    def checknet(self):
-        url='https://www.google.com/'
-        timeout=1
-        pixmap = QPixmap("net.png")
-        pixmap2 = QPixmap("no_net.png")
-        try:
-            _ = requests.get(url, timeout=timeout)
-            self.ui.netstatus.setText("NET OK")
-            self.ui.neticon.setPixmap(pixmap)
-            self.ui.neticon.show()
-        except requests.ConnectionError:
-            self.ui.netstatus.setText("NO NET")
-            self.ui.neticon.setPixmap(pixmap2)
-            self.ui.neticon.show()
-            
-    def search(self):
-        self.checknet()
-        if (self.ui.input_tag.toPlainText()==''):
-            QMessageBox.about(self, "ALERT!!", "Empty Keyword /Tag !!")
-        else:
-            if(self.ui.choice2.isChecked()):
-                choice=2
-            elif(self.ui.choice3.isChecked()):
-                choice=3
+        
+    def kcore(self):
+        self.ui.kvalue.setText(str(self.ui.slider.value()))
+        G=MainWindow.H.copy()
+        self.ui.pushButton.setDisabled(True)
+        self.ui.progressBar.setValue(60)
+        self.ui.progressBar.setValue(80)
+        to_del = [n for n in G if G.degree(n) < self.ui.slider.value()]
+        G.remove_nodes_from(to_del)
+        nodes=dict(G.degree)
+        for v in nodes.values():
+            if v<10:
+                MainWindow.nodelist.append(v*50)
             else:
-                choice=1
-            tags=self.ui.input_tag.toPlainText()
-            tags.strip()
-            number=self.ui.input_tweet.value()
-            self.ui.display_label.setText("LOADING")
-            ##-------------BEGIN INVOKING MODULES------------##
-            self.ui.progress.setValue(20)
-            temp=te.DownloadData(choice,tags,number,self.ui)
-            gp.plotPieChart(temp[0],temp[1], temp[2], temp[3],temp[4], temp[5], temp[6], temp[7], temp[8])
-            gp.barGraphM(temp[9])
-            gp.barGraphD(temp[10])
-            gp.cloud(temp[11])
-            gp.plotgraph(temp[12], temp[13])
-            ##--------------------- END----------------------##
-        
+                MainWindow.nodelist.append(1000)
+                
+        nx.draw(G, node_size=MainWindow.nodelist, with_labels=True,alpha=0.8)
+        plt.show()
+        self.ui.progressBar.setValue(100)
+        self.ui.pushButton.setDisabled(False)
+            
+
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     w = MainWindow()

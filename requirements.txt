@@ -1,0 +1,11 @@
+emoji==0.5.1
+matplotlib==3.0.0
+networkx==2.2
+numpy==1.15.2
+pandas==0.23.4
+PyQt5==5.11.3
+PyQt5-sip==4.19.14
+pyqt5-tools==5.11.3.1.4
+textblob==0.15.2
+tweepy==3.7.0
+wordcloud==1.5.0
