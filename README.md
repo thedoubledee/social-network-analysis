@@ -1,6 +1,6 @@
 [social-network-analysis](https://github.com/itsDevhere/social-network-analysis)
 
-Master update v4.0 done at **14-05-2019 @  12:24am**
+Master update v4.1 done at **19-05-2019 @  12:10pm**
 # social-network-analysis
 Social Networking Analysis  is a technique to analyse a given dataset to extract useful information and understanding the trend.
 We are currently working on analyzing tweets based onsearch string input,analyse and plot graph for better statistical understanding and prediction purposes.
@@ -14,15 +14,14 @@ Contributing Members :
 
 ## What's done as of now
 
- - GUI removed for optisation purpose
- - New K-Map slider allows user to dynamically set Degree of network graph
- - Removed day-wise,month-wise graph
- - Added positive tweet per party graph
- - Added funtionality to calculate degree centrality for better prediction
+ - Bar Graph and Pie Chart per party both visible under one figure
+ - Edited +ve tweets per party to +ve and -ve tweets per party bar graph
+ - Minor optimisation
 
 ## Known Issues:
 
  - K-Map slider selected less than 3 takes longer time to render the graph
+ - Analysing and redering graph takes certain time.Please be patient.
  
 ## Active Contribution
 
@@ -34,3 +33,4 @@ Soumjit
 
 ## Snapshots:
 [Program Output](https://imgur.com/a/fNTlOoS)
+[+ve -ve tweets per party](https://imgur.com/a/HUji90k)
